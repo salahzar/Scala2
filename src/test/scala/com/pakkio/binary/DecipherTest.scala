@@ -2,68 +2,17 @@ package com.pakkio.binary
 
 import org.scalatest.FunSuite
 
+import Implicits._
 
-class DecipherTest extends FunSuite with Implicits {
-  type BA = Array[Byte]
+class DecipherTest extends FunSuite {
 
-  class CExtend(seed: BA) {
-
-    import java.security.SecureRandom
-
-    val sr = new SecureRandom(seed)
-
-  }
-
-  def crypt(m: Buffer, k: Buffer) = {
-    m.xor(k)
-  }
-
-  /**
-   * Extends key until a specified length
-   * repeating it
-   * @param key the original key to extend
-   * @param l the final desired length
-   * @extendFunction is the function extending, default is identity i.e. replicating
-   * @return
-   */
-  def extend(key: Buffer,
-             l: Int,
-             function: CryptoExtendable)
-  : Buffer = {
-    var ret = new Array[Byte](0)
-    while (ret.length < l) ret = ret ++ function.next(key.content)
-    Buffer(ret.slice(0, l))
-
-  }
-
-  abstract class CryptoExtendable(seed: BA) {
-    def next(x: BA): BA
-  }
-
-  case class CryptoExtend(seed: BA) extends CryptoExtendable(seed) {
-
-    import java.security.SecureRandom
-
-    val generator = new SecureRandom(seed)
-
-    override def next(x: BA) = {
-      var ret = new Array[Byte](seed.length)
-      generator.nextBytes(ret)
-      ret
-    }
-
-  }
-
-  case class TrivialExtend(seed: BA) extends CryptoExtendable(seed) {
-    override def next(x: BA) = seed
-  }
 
 
   private val KEY = "asD$%"
   private val EXTENSIONLEN = 100*KEY.length
 
   test("setting a crypted message with same " + KEY) {
-    val c1 = crypt("alle falde", KEY)
+    val c1 = Buffer("alle falde").crypt(KEY)
     println(c1.toHex)
 
   }
