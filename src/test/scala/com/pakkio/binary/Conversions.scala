@@ -1,11 +1,9 @@
 package com.pakkio.binary
 
 import org.scalatest.FunSuite
+import Implicits._
 
-/**
- * Created by pakki_000 on 08/08/2015.
- */
-class Conversions extends FunSuite with Implicits {
+class Conversions extends FunSuite  {
 
   test("testConvertStringsToByteArrays") {
       val s="alle falde"
