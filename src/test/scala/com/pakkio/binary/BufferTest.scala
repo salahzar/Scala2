@@ -1,11 +1,11 @@
 package com.pakkio.binary
 
 import org.scalatest.FunSuite
-
+import Implicits._
 
 class BufferTest extends FunSuite  {
-    test("can create a Buffer") {
-      val x=Buffer("this is a string")
+    test("can create a Buffer from a String") {
+      val x:Buffer="this is a string"
 
     }
     test("can print a buffer in hexdecimal"){
