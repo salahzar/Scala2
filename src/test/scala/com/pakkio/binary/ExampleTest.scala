@@ -20,6 +20,35 @@ class ExampleTest extends FunSuite {
     , "466d06ece998b7a2fb1d464fed2ced7641ddaa3cc31c9941cf110abbf409ed39598005b3399ccfafb61d0315fca0a314be138a9f32503bedac8067f03adbf3575c3b8edc9ba7f537530541ab0f9f3cd04ff50d66f1d559ba520e89a2cb2a83"
     , "32510ba9babebbbefd001547a810e67149caee11d945cd7fc81a05e9f85aac650e9052ba6a8cd8257bf14d13e6f0a803b54fde9e77472dbff89d71b57bddef121336cb85ccb8f3315f4b52e301d16e9f52f904"
   )
+  val m1:Buffer="the first thing to think when we are ready to go out is to be happy"
+  val m2:Buffer="somebody can tell you that we are not good to do the good, but we are sure we can do that"
+  val m3:Buffer="this is the third and last message do try to decrypt"
+  val m4:Buffer="a story in the world is where you can learn from your errors"
+  val m5:Buffer="similarities are often casuals and cannot be reproduced"
+  val m6:Buffer="some people say the same as other people, but we cannot guarantee"
+
+
+
+  test("crypting three messages with same KEY") {
+    val c1 = m1.crypt(KEY)
+    val c2 = m2.crypt(KEY)
+    val c3 = m3.crypt(KEY)
+    val c4 = m4.crypt(KEY)
+    val c5 = m5.crypt(KEY)
+    val c6 = m6.crypt(KEY)
+
+    val c1c2=c1.xor(c2)
+    val c1c3=c1.xor(c3)
+    val c2c3=c2.xor(c3)
+    val c1c4=c1.xor(c4)
+    val c1c5=c1.xor(c5)
+    val c1c6=c1.xor(c6)
+
+    val matching1=matching(
+      List(c1c2.findSpaces(),c1c3.findSpaces(),c1c4.findSpaces(),c1c5.findSpaces()))
+    println(s"m1: \n${m1.toString} spaces: \n$matching1")
+
+  }
   test("various messages") {
 
     val bMsgs=msgs.map(Buffer(_))
