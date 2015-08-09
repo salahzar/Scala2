@@ -25,8 +25,9 @@ class ExampleTest extends FunSuite {
     val bMsgs=msgs.map(Buffer(_))
     val lastMsg=bMsgs.last
     val xorMsgs=for(i <- 0 until 10) yield bMsgs(i).xor(lastMsg)
-    val spaces=xorMsgs.map(_.findSpaces)
+    val spaces=xorMsgs.map(_.findSpaces).toList
     spaces.map(println)
+    println(matching(spaces))
 
   }
 }
