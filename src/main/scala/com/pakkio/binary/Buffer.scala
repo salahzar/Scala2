@@ -1,6 +1,7 @@
 package com.pakkio.binary
 import Implicits._
 case class Buffer(content:BA) {
+
   def xor(y: Buffer):Buffer = Buffer(content.zip(y.content).map{
     case (x,y) =>
       (x ^ y).toByte
@@ -44,6 +45,13 @@ object Buffer {
   }
   def apply(l: List[Int]) =
   new Buffer(l.map(_.toByte).toArray)
+
+  def fromOB(s: List[Option[Byte]]) = {
+    s.map {
+      case None => '.'
+      case Some(b) => b.toChar
+    }.mkString
+  }
 
 
   def fromHex(s: String) = {
