@@ -57,8 +57,8 @@ class ExampleTest extends FunSuite {
     val origK = CryptoExtend(key).extend(maxLengthFound)
     val C = origM.map(_.crypt(key))
 
-    // initial Key is empty filled with ?
-    val EMPTY:List[Option] = List.fill(maxLengthFound)(None)
+    // initial Key is empty filled with None
+    val EMPTY:List[Option[Byte]] = List.fill(maxLengthFound)(None)
     var K = EMPTY
     // generates num messages each of them with a string of unknown characters
     var M = Array.fill(num)(EMPTY)
@@ -66,8 +66,8 @@ class ExampleTest extends FunSuite {
     val combinations = List(1, 2, 3).combinations(3).toList
     combinations.map(handle_message)
 
-    case class GivenData(k: Int, m0: Int, m1: Int, m2: Int, c0: Byte, c1: Byte, c2: Byte)
-    case class ReturnedData(m0: Int, m1: Int, m2: Int, k: Int)
+    case class GivenData(k: Option[Byte], m0: Option[Byte], m1: Option[Byte], m2: Option[Byte], c0: Byte, c1: Byte, c2: Byte)
+    case class ReturnedData(m0: Option[Byte], m1: Option[Byte], m2: Option[Byte], k: Option[Byte])
 
     // handle a triplet giving their indices
     def handle_message(list: List[Int]) = {
@@ -82,10 +82,10 @@ class ExampleTest extends FunSuite {
 
       }.toList.unzip4
 
-      val m0decode:Buffer = newm0.toString
-      val m1decode:Buffer = newm1.toString
-      val m2decode:Buffer = newm2.toString
-      val kdecode:Buffer = newkey.toString
+      println("m0:" + Buffer(newm0.map(_.getOrElse('.')).mkString))
+      println("m1:" + Buffer(newm1.map(_.getOrElse('.')).mkString))
+      println("m2:" + Buffer(newm2.map(_.getOrElse('.')).mkString))
+      println("k :" + Buffer(newkey.map(_.getOrElse('.')).mkString))
 
 
     }
@@ -93,12 +93,13 @@ class ExampleTest extends FunSuite {
     : ReturnedData = {
       val given_data = GivenData(
         K(column),
-        M(i0).charAt(column),
-        M(i1).charAt(column),
-        M(i2).charAt(column),
+        M(i0)(column),
+        M(i1)(column),
+        M(i2)(column),
         C(i0).content(column),
-        C(i1).content(column),
-        C(i2).content(column))
+        if(column < C(i1).content.length) C(i1).content(column) else 0,
+        if(column < C(i2).content.length) C(i2).content(column) else 0
+      )
 
       handleByte(given_data)
     }
@@ -106,24 +107,24 @@ class ExampleTest extends FunSuite {
     def handleByte(g: GivenData)
     : ReturnedData = {
 
-      def retKnowingKey(k: Int) = {
+      def retKnowingKey(k: Byte) = {
+
         ReturnedData(
-          (g.c0 ^ k).toChar,
-          (g.c1 ^ k).toChar,
-          (g.c2 ^ k).toChar,
-          k
+          Some((g.c0 ^ k).toByte),
+          Some((g.c1 ^ k).toByte),
+          Some((g.c2 ^ k).toByte),
+          Some(k)
           )
       }
-      if (isKnown(g.k)) retKnowingKey(g.k)
-      else if (isKnown(g.m0)) retKnowingKey((g.m0 ^ g.c0).toChar)
+      if (g.k.isDefined) retKnowingKey(g.k.get)
+      else if (g.m0.isDefined) retKnowingKey( (g.m0.get ^ g.c0).toByte)
       else {
         val xor01 = (g.c0 ^ g.c1).toByte
         val xor02 = (g.c0 ^ g.c2).toByte
         val xor12 = (g.c1 ^ g.c2).toByte
         if ((ifspace(xor01) && ifspace(xor02)) && (xor12 != 0))
         // we have sure space in m1 so we can compute the key
-          (32 ^ g.c0).toChar
-          retKnowingKey((32 ^ xor01).toChar)
+          retKnowingKey((32 ^ g.c0).toByte)
 
         else
           ReturnedData(g.m0, g.m1, g.m2, g.k)
