@@ -10,6 +10,12 @@ import scala.collection.immutable.IndexedSeq
 
 object Week2Crypto {
   implicit def convert2R(x:String):R=R(x)
+  implicit def int2R(i: Int): R = {
+    def nextPow2(i: Int, acc: Int): Int = if (i < acc) acc else nextPow2(i, 2 * acc)
+    val s:String=(nextPow2(i, math.pow(2,4).toInt)+i).toBinaryString.substring(1)
+    R(s)
+
+  }
   case class R(_4bits:String){
     def ^(that:R):R ={
       val zipped: List[(Char, Char)] = this._4bits.zip(that._4bits).toList
@@ -56,6 +62,8 @@ object Week2Crypto {
     }
     ret
   }
+
+
 
 
 

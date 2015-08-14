@@ -54,10 +54,54 @@ class Week2CryptoTest extends FunSuite {
 
 
   }
-  test("actual exercise"){
-    val v_0110=R("0011")
-    val v_0101=R("1010")
-    val v_1110=R("0110")
+  test("actual exercise with xor"){
+    val v_0110=R("0011") // k0+k2+k3
+    val v_0101=R("1010") // k0+k2+k4
+    val v_1110=R("0110") // k0+k1+k2+k3
+    val k1=v_0110 ^
+           v_1110
+
+    val k1k3 = v_0101 ^
+               v_1110
+
+    val k3k4 = v_0110 ^
+               v_0101
+
+    val k3 = k1 ^ k1k3
+
+    val k4 = k3 ^ k3k4
+
+    val v_1101= v_1110 ^ k3 ^ k4
+
+    println(s"Value for 1101 is $v_1101")
+
+
+
+  }
+
+  def evaluateDataForThisKey(k: R5) = {
+    if(
+      (F(k,"0110")=="0011") &&
+
+
+  }
+
+  import scala.math.pow
+
+  test("Brutal force"){
+    val exponent = pow(16,5)
+    println(s"should loop over ${exponent} values")
+    for(
+      k0 <- 0 to 15;
+      k1 <- 0 to 15;
+      k2 <- 0 to 15;
+      k3 <- 0 to 15;
+      k4 <- 0 to 15){
+      val k=R5(k0,k1,k2,k3,k4)
+
+      evaluateDataForThisKey(k)
+    }
+
   }
 
 }
