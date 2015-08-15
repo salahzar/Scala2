@@ -63,7 +63,6 @@ object Buffer {
 
 object Implicits {
   type BA = Array[Byte]
-  def ifspace(byte:Byte) = isspace(byte)=='_'
   def isspace(byte: Byte): Char = {
     val Pattern = "([a-zA-Z])".r
     byte.toChar match {
@@ -72,6 +71,7 @@ object Implicits {
       case _ => 'X'
     }
   }
+  def ifspace(byte:Byte):Boolean = isspace(byte)=='_'
 
   def ismatching(pair:(Char, Char)) : Char = {
     pair match {
