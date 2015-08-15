@@ -28,6 +28,10 @@ case class Buffer(content:BA) {
 
   def toHex =  content.map("%02X".format(_)).mkString("")
 
+  // concatenation of buffers
+  def `||`(that:Buffer)={
+    Buffer(this.content ++ that.content)
+  }
 
   def toStringFull(header:String) = s"\n>>>>>$header is '${toString}', hex is '$toHex', \nrandomness is ${analyze()}"
 
