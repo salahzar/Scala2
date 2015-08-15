@@ -53,6 +53,10 @@ object Buffer {
     }.mkString
   }
 
+  def fromBytes(s: List[Byte]) = {
+    Buffer(s.map {_.toChar}.mkString)
+  }
+
 
   def fromHex(s: String) = {
     new Buffer(

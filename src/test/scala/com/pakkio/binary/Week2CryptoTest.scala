@@ -79,7 +79,7 @@ class Week2CryptoTest extends FunSuite {
 
   }
 
-  def evaluateDataForThisKey(k: R5) = {
+  /*def evaluateDataForThisKey(k: R5) = {
     if(
       (F(k,"0110")=="0011") &&
 
@@ -103,5 +103,5 @@ class Week2CryptoTest extends FunSuite {
     }
 
   }
-
+*/
 }
