@@ -81,7 +81,14 @@ class Week2CryptoTest extends FunSuite {
 
   /*def evaluateDataForThisKey(k: R5) = {
     if(
-      (F(k,"0110")=="0011") &&
+      (F(k,"0110").toInt==3) &&
+      (F(k,"0101").toInt==10) &&
+      (F(k,"1110").toInt==6) ){
+      //println(s"Found key at keys $k")
+      val computed=F(k,"1101")
+      //println(s"Computed value at 1101 is $computed")
+      Some(computed)
+    } else None
 
 
   }
@@ -91,16 +98,17 @@ class Week2CryptoTest extends FunSuite {
   test("Brutal force"){
     val exponent = pow(16,5)
     println(s"should loop over ${exponent} values")
-    for(
+    val list=for(
       k0 <- 0 to 15;
       k1 <- 0 to 15;
       k2 <- 0 to 15;
       k3 <- 0 to 15;
-      k4 <- 0 to 15){
-      val k=R5(k0,k1,k2,k3,k4)
+      k4 <- 0 to 15;
+      k=R5(k0,k1,k2,k3,k4)) yield evaluateDataForThisKey(k)
 
-      evaluateDataForThisKey(k)
-    }
+    val values = list.toList.flatten
+    println(s"Found exactly ${values.length} matches")
+    println(s"group by ${values.distinct}")
 
   }
 */
