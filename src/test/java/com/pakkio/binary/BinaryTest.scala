@@ -56,10 +56,16 @@ class BinaryTest extends FunSuite {
     assert(b==="0000ffff")
   }
   test("xor tests"){
-    val b=Binary.fromHex("ffff",16)
-    val b1=Binary.fromHex("ff",16)
+    val b=Binary.fromHex("ffff",4)
+    val b1=Binary.fromHex("ff",4)
     val out=b.xor(b1)
+    assert(out.toHex==="0000ff00")
 
+  }
+  test("add 1 test for ctr purposes"){
+    val b=Binary.fromHex("ffff",4)
+    val b1=b.add(1)
+    assert(b1.toHex()==="00010000")
   }
 
 }
