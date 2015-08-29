@@ -141,7 +141,10 @@ class CBCTest extends FunSuite {
       val padlength = 16 - pos
       // fill latest characters with the same number padLength
       for(i<- pos until 16){
-        iv1(i)=g.toByte
+        if(i==pos)
+          iv1(i)=g.toByte
+        else
+          iv1(i)=
       }
 
       //iv1(15) = g.toByte
