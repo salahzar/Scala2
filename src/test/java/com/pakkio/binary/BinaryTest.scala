@@ -52,7 +52,7 @@ class BinaryTest extends FunSuite {
     assert(b.toByteArray===Array[Byte](0,0,-1,-1))
   }
   test("to hex"){
-    val b=Binary.fromHex("ffff",4).toHex()
+    val b=Binary.fromHex("ffff",4).toHex
     assert(b==="0000ffff")
   }
   test("xor tests"){
@@ -60,12 +60,13 @@ class BinaryTest extends FunSuite {
     val b1=Binary.fromHex("ff",4)
     val out=b.xor(b1)
     assert(out.toHex==="0000ff00")
-
+    val out1=b ^ b1
+    assert(out1.toHex==="0000ff00")
   }
   test("add 1 test for ctr purposes"){
     val b=Binary.fromHex("ffff",4)
     val b1=b.add(1)
-    assert(b1.toHex()==="00010000")
+    assert(b1.toHex==="00010000")
   }
 
 }

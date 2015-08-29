@@ -6,30 +6,24 @@ import java.math.BigInteger
 import scala.language.implicitConversions
 
 class Binary(val origBa: Array[Byte],val fillTo:Int = -1)  {
+
+
   def toInt(b:Byte):Int = (b + 256) % 256
+
+
   def add(that: Int) = {
     val binaryToAdd=Binary(BigInteger.valueOf(that).toByteArray,size)
     // now must loop over LSB adding together from right
     val tuples = ba.zip(binaryToAdd.ba)
-    var carry:Int=0
-    val baTot=for (index <- (0 until size).reverse)
-      yield {
-        val add1 = toInt(tuples(index)._1)
-        val add2 = toInt(tuples(index)._2)
-        val tot: Int = add1 + add2 + carry
-        var newcarry=0
-        val out=if(tot>255) {
-          newcarry = 1
-          (tot - 256).toByte
 
-        } else tot.toByte
-        println(s"index $index adding $add1 + $add2 + $carry => $out, $newcarry")
-        carry=newcarry
-        out
-      }
-
-
-    Binary(baTot.toArray.reverse,size)
+    case class Acc(carry: Int, result: List[Byte])
+    val result = tuples.foldRight(Acc(0, List[Byte]()))((pair, acc) => {
+      val tot = toInt(pair._1) + toInt(pair._2) + acc.carry
+      val out = tot % 256
+      Acc(tot / 256, out.toByte :: acc.result)
+    }
+    ).result.toArray
+    Binary(result,size)
   }
 
 
@@ -44,8 +38,14 @@ class Binary(val origBa: Array[Byte],val fillTo:Int = -1)  {
     val baOut:Array[Byte]=tuples.map(x=>fxor(x))
     Binary(baOut,tuples.length)
   }
+  def xor(position:Int, value:Int): Binary ={
+    Binary(ba.zipWithIndex.map( (pair) => if(pair._2 == position ) (pair._1 ^ value).toByte else pair._1))
+  }
+  def set(position:Int, value:Int): Binary ={
+    Binary(ba.zipWithIndex.map( (pair) => if(pair._2 == position ) (value).toByte else pair._1))
+  }
 
-  def toHex() = ba.map("%02x".format(_)).mkString
+  def toHex = ba.map("%02x".format(_)).mkString
 
 
   // find real byte array filled at head with proper
@@ -72,7 +72,7 @@ class Binary(val origBa: Array[Byte],val fillTo:Int = -1)  {
    */
   def toByteArray = ba
 
-  def ^(that: Binary) = ???
+  def ^(that: Binary) = xor(that)
 
 
 }
