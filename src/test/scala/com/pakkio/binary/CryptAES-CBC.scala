@@ -99,74 +99,89 @@ class CBCTest extends FunSuite {
 
 
   }
+
+
+
   test("try to create a padding error") {
     val plainText = "Hello"
+    type BA=Array[Byte]
+    case class Context(encrypted:BA, decrypted:BA, intermediate:BA)
+
     cryptCBC(key, iv, plainText).map {
       encrypted =>
 
+        val decrypted: BA = Array.fill[Byte](16)(0)
+        val intermediate: BA = Array.fill[Byte](16)(0)
+        val ctx=Context(encrypted,decrypted,intermediate)
         for(pos<- (0 until 16).reverse) {
-          val revealed: Int = revealByteAtPos(encrypted, pos)
+          println(s"iteration $pos")
+          val revealed: Int = revealByteAtPos(ctx, pos)
           println("Revealed byte is 0x%02x".format(revealed))
         }
 
 
 
     }
-  }
+    def revealByteAtPos(ctx: Context, pos: Int): Int = {
+      val guessed = guessPadding(ctx, pos)
+      println("Good padding with byte 0x%02x".format(guessed))
+      // now try to understand which value was in intermediate place
+      // since we know this decodes to 01
 
+      val iByte = (guessed ^ 1)
+      ctx.intermediate(pos)=iByte.toByte
 
-  def revealByteAtPos(encrypted: Array[Byte], pos: Int): Int = {
+      // but now we knew the value of ivbytes from first block of encrypted 15th position
 
+      val ivByte = ctx.encrypted(pos)
 
-    val guessed = guessPadding(encrypted, pos)
-    println("Good padding with byte 0x%02x".format(guessed))
-    // now try to understand which value was in intermediate place
-    // since we know this decodes to 01
+      // now decrypted text in that position is simply the xor of iByte and ivByte
+      val revealed = (iByte ^ ivByte)
+      ctx.decrypted(pos)=revealed.toByte
+      revealed
 
-    val iByte = (guessed ^ 1)
+    }
 
-    // but now we knew the value of ivbytes from first block of encrypted 15th position
+    def guessPadding(ctx:Context, pos: Int): Byte = {
+      for (g <- 0 until 256) {
+        println(s"attempting g=$g")
+        // this is a surely invalid IV for that
+        val iv1 = Array.fill[Byte](16)(0)
+        val padlength = 16 - pos
+        // fill latest characters with the same number padLength
+        for(i<- pos until 16){
+          if(i==pos)
+            iv1(i)=g.toByte
+          else
+          // use a proper value to produce padlength in decrypted
+            iv1(i)=(ctx.intermediate(i)^padlength).toByte
+        }
 
-    val ivByte = encrypted(pos)
+        //iv1(15) = g.toByte
+        val forged = iv1 ++ ctx.encrypted.drop(16)
+        if (paddingOracle(forged))
+          return g.toByte
 
-    // now decrypted text in that position is simply the xor of iByte and ivByte
-    val revealed = (iByte ^ ivByte)
-    revealed
-  }
-
-  def guessPadding(encrypted: Array[Byte], pos: Int): Byte = {
-    for (g <- 0 until 256) {
-      // this is a surely invalid IV for that
-      val iv1 = Array.fill[Byte](16)(0)
-      val padlength = 16 - pos
-      // fill latest characters with the same number padLength
-      for(i<- pos until 16){
-        if(i==pos)
-          iv1(i)=g.toByte
-        else
-          iv1(i)=
       }
-
-      //iv1(15) = g.toByte
-      val forged = iv1 ++ encrypted.drop(16)
-      if (paddingOracle(forged)) return g.toByte
-
+      throw new Exception("Can't find a valid guess")
     }
-    throw new Exception("Can't find a valid guess")
-  }
 
-  def paddingOracle(forged: Array[Byte]): Boolean = {
-    decryptCBC(key, forged) match {
-      case Success(decrypted) =>
-        //println(decrypted)
-        true
-      case Failure(x: scalacrypt.BadPaddingException) =>
-        //println("bad padding")
-        false
-      case Failure(e) =>
-        println("generic failure")
-        false
+    def paddingOracle(forged: Array[Byte]): Boolean = {
+      decryptCBC(key, forged) match {
+        case Success(decrypted) =>
+          //println(decrypted)
+          true
+        case Failure(x: scalacrypt.BadPaddingException) =>
+          //println("bad padding")
+          false
+        case Failure(e) =>
+          println("generic failure")
+          false
 
+      }
     }
   }
+
+
+
 }
