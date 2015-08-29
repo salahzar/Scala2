@@ -6,6 +6,12 @@ import java.math.BigInteger
 import scala.language.implicitConversions
 
 class Binary(val origBa: Array[Byte],val fillTo:Int = -1)  {
+  def xor(that: Binary) = {
+    val tuples: Array[(Byte, Byte)] = ba.zip(that.ba)
+    val baOut:Array[Byte]=tuples.map( ^ )
+    ),tuples.length)
+  }
+
   def toHex() = ba.map("%02x".format(_)).mkString
 
 

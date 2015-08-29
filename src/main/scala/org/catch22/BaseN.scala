@@ -5,52 +5,55 @@
  */
 package org.catch22
 
+import java.math.BigInteger
+
 import scala.language.implicitConversions
 
-sealed class BaseN(val underlying: BigInt, val baseN: Int)  {
-  def n(x: Int) = new BaseN(underlying, x)
+class Binary(val origBa: Array[Byte],val fillTo:Int = -1)  {
+
+  // find real byte array filled at head with proper
+  val ba:Array[Byte]=if(fillTo == -1) origBa else {
+    if (origBa.length < fillTo) {
+      val filler = Array.fill[Byte](fillTo-origBa.length)(0)
+      filler ++ ba
+    }
+    else origBa.slice(0,fillTo)
+  }
+  val size=ba.length
+  val underlying = BigInt(new BigInteger(ba))
+
 
   /**
    * Return this BaseN as an array of Int normalized  in the range 0 -255
    */
-  def toIntArray: Array[Int] = toByteArray.map(_ + 256).map(_ % 256)
-
-  private def toB(n: BigInt): List[Int] = {
-    if (n == 0) Nil else
-      (n % 2).toInt :: toB(n / 2)
-  }
-
-  /**
-   * Return the bit representation of this BaseN
-   */
-  def toBits = toB(underlying).reverse
+  def toIntArray: Array[Int] = ba.map(_ + 256).map(_ % 256)
 
   /**
    * Return this BaseN as a Byte Array with the sign byte removed (if it exists)
    */
-  def toByteArray = underlying.toByteArray
-  def toUnsignedByteArray =if (underlying.toByteArray.head == 0) underlying.toByteArray.tail else underlying.toByteArray
+  def toByteArray = ba
 
   /* All the following ops are mearely wrappers for
    the equivalent ops on BigInt */
+/*
 
-  def ^(that: BaseN) = BaseN(underlying.^(that.underlying), baseN)
+  def ^(that: Binary) = BaseN(underlying)).^(new BigInteger(that.underlying)), baseN)
   def xor(that: BaseN) = ^(that) //Synonym for ^
-  def +(that: BaseN) = BaseN(underlying.+(that.underlying), baseN)
-  def -(that: BaseN) = BaseN(underlying.-(that.underlying), baseN)
-  def *(that: BaseN) = BaseN(underlying.*(that.underlying), baseN)
-  def /(that: BaseN) = BaseN(underlying./(that.underlying), baseN)
-  def &(that: BaseN) = BaseN(underlying.&(that.underlying), baseN)
-  def |(that: BaseN) = BaseN(underlying.|(that.underlying), baseN)
-  def mod(that:BaseN)= BaseN(underlying.mod(that.underlying),baseN)
+  def +(that: BaseN) = BaseN(BigInt(new BigInteger(underlying)).+(new BigInteger(that.underlying)), baseN)
+  def -(that: BaseN) = BaseN(new BigInteger(underlying).-(that.underlying), baseN)
+  def *(that: BaseN) = BaseN(new BigInteger(underlying).*(that.underlying), baseN)
+  def /(that: BaseN) = BaseN(new BigInteger(underlying)./(that.underlying), baseN)
+  def &(that: BaseN) = BaseN(new BigInteger(underlying).&(that.underlying), baseN)
+  def |(that: BaseN) = BaseN(new BigInteger(underlying).|(that.underlying), baseN)
+  def mod(that:BaseN)= BaseN(new BigInteger(underlying).mod(that.underlying),baseN)
   def modInverse(that:BaseN)=BaseN(underlying.modInverse(that.underlying),baseN)
   def modPow(that:BaseN,p:Int)=BaseN(underlying.modPow(that.underlying,p),baseN)
 
-  def <<(n: Int) = BaseN(underlying.<<(n), baseN)
-  def >>(n: Int) = BaseN(underlying.>>(n), baseN)
+  def <<(n: Int) = BaseN(new BigInteger(underlying).<<(n), baseN)
+  def >>(n: Int) = BaseN(new BigInteger(underlying).>>(n), baseN)
 
   implicit def toInt = underlying.toInt
-  implicit def toBigInt = underlying
+  implicit def toBigInt = new BigInteger(underlying)
 
   /**
    * Return the byte wise String representation of this BaseN.  For a non byte wise 
@@ -68,12 +71,17 @@ sealed class BaseN(val underlying: BigInt, val baseN: Int)  {
    * Return the conventional String representation of this BaseN
    */
   def toRawString = underlying.toString(baseN)
+*/
 
 }
 
+/*
 object BaseN {
   def apply(b: BigInt, n: Int) = new BaseN(b, n)
-  def apply(ba:Array[Byte])= new BaseN(BigInt(ba),16)
+  def apply(ba:Array[Byte])= {
+    val bigInt: BigInt = new BigInteger(ba)
+    new BaseN(bigInt,16)
+  }
 
   implicit def StringToBinary(s: String): Binary = new Binary(BigInt(s, 2))
   implicit def StringToHex(s: String): Hex = new Hex(BigInt(s, 16))
@@ -123,4 +131,4 @@ class Binary(b: BigInt) extends BaseN(b, 2) {
    * tell the compiler to attempt an implicit conversion to Binary
    */
   def b:Binary = this
-}
+}*/
